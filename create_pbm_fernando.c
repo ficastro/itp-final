@@ -36,7 +36,7 @@ int main() {
         scanf("%d", &numeros[i])Como dito anteriormente
     }
 
-    printf("\nConverting first half...\n") // A primeira metade do EAN utiliza o L-code
+    printf("\nConverting...\n")
     for (int i = 0; i < 4; i++) {
 
         int digit = identifier[i];
