@@ -28,15 +28,15 @@ int main() {
         1110100  // dígito 9
     };
  
-    int identifier[8]; 0123 4567
+    int identifier[8];
     int binary_identifier[8];
 
-    printf("Insira 8 dígitos (0 ou 1), apertando Enter entre cada um:\n")
+    printf("Insira 8 dígitos (0 ou 1), apertando Enter entre cada um:\n");
     for (int i = 0; i < 8; i++) {
         scanf("%d", &numeros[i])Como dito anteriormente
     }
 
-    printf("\nConverting...\n")
+    printf("\nConverting...\n");
     for (int i = 0; i < 4; i++) {
 
         int digit = identifier[i];
@@ -52,7 +52,7 @@ int main() {
 
         }
         else {
-            printf("(ERRO) Dígito inválido inserido: %d na posição %d\n", digit, i);
+            printf("(ERRO) Dígito inválido inserido: %d (na posição %d)\n", digit, i);
             return 1;
         }
 
