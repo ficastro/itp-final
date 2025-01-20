@@ -6,7 +6,9 @@ int main(){
     // Variáveis devem ser declaradas no início do bloco. Não podem começar com números e são case-sensitive.
     
     int inteiros = 2;                       // 4 bytes      // %d ou %i
+    int array[10];
     char caracteres_unicos = 'A';           // 1 byte       // %c
+    char* string = "Hello!";                                // %s
     float reais = 2.5;                      // 4 bytes      // %f
     double reais_maiores = 20.5495;         // 8 bytes      // %lf "long-float"
     // Double tem mais números depois da vírgula que o float
