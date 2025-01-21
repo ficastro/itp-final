@@ -1,40 +1,17 @@
 #include <stdio.h>
- 
-char *l_codes[10] = {
-        "0001101", // dígito 0
-        "0011001",
-        "0010011",
-        "0111101",
-        "0100011",
-        "0110001", // dígito 5
-        "0101111",
-        "0111011",
-        "0110111",
-        "0001011"  // dígito 9
-    };
+#include <stdlib.h>
+#include <unistd.h>
 
-char *r_codes[10] = {
-        "1110010", // dígito 0
-        "1100110",
-        "1101100",
-        "1000010",
-        "1011100",
-        "1001110", // dígito 5
-        "1010000",
-        "1000100",
-        "1001000",
-        "1110100"  // dígito 9
-    };
+#include "create_pbm.h"
 
 void print_array(char* array[]) {
     for (int i = 0; i < 8; i++) {
-        printf("%s ", array[i]);  
+        printf("%s ", array[i]);
     }
 }
 
-int convert_to_binary(int decimal_identifier[], char *binary_identifier[]) {
+void convert_to_binary(int decimal_identifier[], char *binary_identifier[]) {
     printf("\nConverting...\n");
-
     for (int i = 0; i < 8; i++) {
 
         int digit = decimal_identifier[i];
@@ -51,28 +28,100 @@ int convert_to_binary(int decimal_identifier[], char *binary_identifier[]) {
         }
         else {
             printf("(ERRO) Dígito inválido inserido: %d (na posição %d)\n", digit, i);
-            return 1;
         }
 
     }
 }
 
-int main() {
- 
-    int identifier[8];
-    char* binary_identifier[8];
+int convert_int_to_array(int integer, int identifier_array[]) {
+    for (int i = 7; i >= 0; i--) {
+        identifier_array[i] = integer % 10;
+        integer = integer / 10;
+    }
+}
 
-    printf("Insira 8 dígitos (0 ou 1), apertando Enter entre cada um:\n");
-    for (int i = 0; i < 8; i++) {
-        scanf("%d", &identifier[i]);
-        
+// int generate_matrix(pbm_info) {
+
+// }
+
+void create_pbm(Pbm pbm_info, int matrix[pbm_info.width][pbm_info.height]) {
+    FILE *file = fopen(pbm_info.name, "w");
+
+    if (!file) {
+        fprintf(stderr, "Erro ao criar arquivo PBM\n");
+        exit(EXIT_FAILURE);
     }
 
-    convert_to_binary(identifier, binary_identifier);
+    fprintf(file, "P1\n");
+    fprintf(file, "%d %d\n", pbm_info.thickness, pbm_info.height);
 
+    for (int i = 0; i < pbm_info.thickness; i++) {
+        for (int j = 0; j < pbm_info.height; j++) {
+            fprintf(file, "%d ", matrix[i][j]);
+        }
+        fprintf(file, "\n");
+    }
+
+
+    fclose(file);
+    printf("Arquivo PBM criado com sucesso: %s\n", pbm_info.name);
+}
+
+int main(int argc, char* argv[]) {
+    int spacing = 1;
+    int thickness = 1;
+    int height = 7;
+    char* name = "codebar.pbm";
+    
+    int opt;
+    while ((opt = getopt(argc, argv, "s:t:h:n:")) != -1) {
+        switch (opt) {
+            case 's':
+                spacing = atoi(optarg);
+                break;
+            case 't':
+                thickness = atoi(optarg);
+                break;
+            case 'h':
+                height = atoi(optarg);
+                break;
+            case 'n':
+                name = optarg;
+                break;
+            default:
+                fprintf(stderr, "Uso: %s [-s spacing] [-t thickness] [-h height] [-n name]\n", argv[0]);
+                exit(EXIT_FAILURE);
+        }
+    }
+
+    // printf("\nValor de spacing: %d\n", spacing);
+    // printf("\nValor de thickness: %d\n", thickness);
+    // printf("\nValor de height: %d\n", height);
+    // printf("\nValor de name: %s\n", name);
+
+    int identifier;
+    int identifier_array[8];
+    char* binary_identifier[8];
+
+    printf("Insira o EAN de 8 dígitos:\n");
+    scanf("%d", &identifier);
+
+    convert_int_to_array(identifier, identifier_array);
+    convert_to_binary(identifier_array, binary_identifier);
     print_array(binary_identifier);
 
+    Pbm pbm_info = {
+        binary_identifier,
+        spacing,
+        thickness,
+        height,
+        (69 * thickness),
+        name
+    };
 
- 
+    int matrix[69][7] = {0};
+
+    create_pbm(pbm_info, matrix);
+
     return 0;
 }
