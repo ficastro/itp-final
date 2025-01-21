@@ -40,60 +40,9 @@ int convert_int_to_array(int integer, int identifier_array[]) {
     }
 }
 
-void generate_matrix(Pbm pbm_info, char** binary_identifier, int matrix[pbm_info.width][pbm_info.height]) {
-    
-    for (int i = 0; i < pbm_info.width; i++) {    
-        for (i; i < (pbm_info.spacing * pbm_info.thickness); i++) { //borda
-            matrix[i][0] = 0;
-        }
-        int aux1 = pbm_info.spacing * pbm_info.thickness;
-        for (i; i < (aux1 + (pbm_info.thickness)); i++) { //marcador inicial
-            // matrix[i][0] = 1;
-            matrix[i][0] = matrix[i + (2 * pbm_info.thickness)][0] = 1;
-            matrix[i + pbm_info.thickness][0] = 0;
-            // matrix[i + (2 * pbm_info.thickness)][0] = 1;
-        }
-        i = i + (2 * pbm_info.thickness);
-        for (i; i < i + (4 * pbm_info.thickness); i++) { // primeiros 4 dígitps
+// int generate_matrix(pbm_info) {
 
-            for(int j = 0; j < 4; j++){
-               for (int k = 0; k < 7; k++){
-                    matrix[i][0] = (binary_identifier[j])[k];
-                    i++;
-                }
-            }       
-        }
-        for (i; i < i + pbm_info.thickness; i++) { //marcador do meio
-            matrix[i][0] = matrix[i + (2 * pbm_info.thickness)][0] = matrix[i + (4 * pbm_info.thickness)][0] = 0;
-            matrix[i + pbm_info.thickness][0] = matrix[i + (3 * pbm_info.thickness)][0] = 1;
-        }
-        i = i + (4 * pbm_info.thickness);
-        for (i; i < i + (4 * pbm_info.thickness); i++) { // primeiros 4 dígitps
-
-            for(int j = 4; j < 8; j++){
-               for (int k = 0; k < 7; k++){
-                    matrix[i][0] = (binary_identifier[j])[k];
-                    i++;
-                }
-            }       
-        }
-        for (i; i < (i + (pbm_info.thickness)); i++) { //marcador inicial
-            // matrix[i][0] = 1;
-            matrix[i][0] = matrix[i + (2 * pbm_info.thickness)][0] = 1;
-            matrix[i + pbm_info.thickness][0] = 0;
-            // matrix[i + (2 * pbm_info.thickness)][0] = 1;
-        }
-        
-    }
-
-//    for (int i = 0; i < pbm_info.thickness; i++) {
-//        for (int j = 0; j < pbm_info.height; j++) {
-//            fprintf(file, "%d ", matrix[i][j]);
-//        }
-//        fprintf(file, "\n");
-
-
-}
+// }
 
 void create_pbm(Pbm pbm_info, int matrix[pbm_info.width][pbm_info.height]) {
     FILE *file = fopen(pbm_info.name, "w");
@@ -112,6 +61,7 @@ void create_pbm(Pbm pbm_info, int matrix[pbm_info.width][pbm_info.height]) {
         }
         fprintf(file, "\n");
     }
+
 
     fclose(file);
     printf("Arquivo PBM criado com sucesso: %s\n", pbm_info.name);
@@ -169,11 +119,10 @@ int main(int argc, char* argv[]) {
         name
     };
 
-    int matrix[pbm_info.width][pbm_info.height];
-    generate_matrix(binary_identifier);
 
-    int matrix[7][69] = {1};
-    create_pbm(pbm_info, matrix);
+    generate_matrix(pbm_info);
+
+    // create_pbm(pbm_info, matrix);
 
     return 0;
 }
