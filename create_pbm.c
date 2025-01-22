@@ -150,10 +150,10 @@ int main(int argc, char* argv[]) {
     };
 
     char *whole_sequence;
-    whole_sequence = calloc(pbm_info.width, sizeof(int));
+    whole_sequence = calloc(pbm_info.width, sizeof(char));
 
     char *thick_sequence;
-    thick_sequence = calloc((pbm_info.width * pbm_info.thickness), sizeof(int));
+    thick_sequence = calloc((pbm_info.width * pbm_info.thickness), sizeof(char));
 
     create_whole_sequence(pbm_info, whole_sequence, binary_identifier, thick_sequence);
     create_pbm(pbm_info, thick_sequence);
