@@ -15,7 +15,7 @@ char *l_codes[10] = {
         "0111011",
         "0110111",
         "0001011"  // dígito 9
-    };
+};
 
 char *r_codes[10] = {
         "1110010", // dígito 0
@@ -28,7 +28,7 @@ char *r_codes[10] = {
         "1000100",
         "1001000",
         "1110100"  // dígito 9
-    };
+};
 
 typedef struct {
     char** binary_identifier;
@@ -71,5 +71,22 @@ int verify(int int_ean) {
     }
 }
 
+int validate_file_name(char file_name[]) {
+    FILE *file = fopen(file_name, "r");
+
+    if (file) {
+        char overwrite;
+        while (overwrite != 'Y' && overwrite != 'n') {
+
+            fprintf(stderr, "\nATENCAO: ARQUIVO JA EXISTENTE. DESEJA SOBRESCREVE-LO? [Y/n]\n> ");
+            scanf("%c", &overwrite);
+
+            if (overwrite == 'n') {
+                printf("\n\nENCERRADO\n\n");
+                exit(1);
+            }
+        }
+    }
+}
 
 #endif
