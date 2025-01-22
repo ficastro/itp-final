@@ -8,7 +8,7 @@ Projeto desenvolvido como atividade avaliativa da discipllina "Introdução às 
 
 <h3>Função: Criar código de barras .pbm (create_pbm.c)</h3>
 
-A inicialização do programa pode conter os seguintes argumentos opcionais. Se não forem especificados, o programa utilizará os valores padrões.
+A inicialização do executável pode conter os seguintes argumentos opcionais. Se não forem especificados, o programa utilizará os valores padrões.
 
 <table>
     <thead>
