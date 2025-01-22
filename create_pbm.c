@@ -105,8 +105,8 @@ void create_pbm(Pbm pbm_info, char final_sequence[pbm_info.width]) {
 int main(int argc, char* argv[]) {
     int spacing = 1;
     int thickness = 1;
-    int height = 1;
-    char* name = "codebar.pbm";
+    int height = 10;
+    char* name = "barcode.pbm";
     
     int opt;
     while ((opt = getopt(argc, argv, "s:t:h:n:")) != -1) {
@@ -122,23 +122,24 @@ int main(int argc, char* argv[]) {
                 break;
             case 'n':
                 name = optarg;
+                strcat(name, ".pbm");
                 break;
             default:
                 fprintf(stderr, "Uso: %s [-s spacing] [-t thickness] [-h height] [-n name]\n", argv[0]);
-                exit(EXIT_FAILURE);
+                exit(1);
         }
     }
 
-    int identifier;
+    int ean;
     int identifier_array[8];
     char* binary_identifier[8];
 
     printf("Insira o EAN de 8 dígitos:\n");
-    scanf("%d", &identifier);
+    scanf("%d", &ean);
 
-    verify(identifier);
+    verify(ean);
 
-    convert_int_to_array(identifier, identifier_array);
+    convert_int_to_array(ean, identifier_array);
     convert_to_binary(identifier_array, binary_identifier);
     print_array(binary_identifier);
 
