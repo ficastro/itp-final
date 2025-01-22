@@ -41,7 +41,7 @@ A inicialização do executável pode conter os seguintes argumentos opcionais. 
         <tr>
             <td>-n</td>
             <td>str</td>
-            <td>(Name) Nome do arquivo .pbm gerado (deve ser inserido entre aspas)</td>
+            <td>(Name) Nome do arquivo .pbm gerado</td>
             <td>"barcode"</td>
         </tr>
     </tbody>
