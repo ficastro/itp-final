@@ -29,7 +29,7 @@ A inicialização do executável pode conter os seguintes argumentos opcionais. 
         <tr>
             <td>-t</td>
             <td>int</td>
-            <td>(Thickness) Grossura de cada área, barras ou espaços vazios</td>
+            <td>(Thickness) Grossura de cada área (barras ou espaços vazios)</td>
             <td>1</td>
         </tr>
         <tr>

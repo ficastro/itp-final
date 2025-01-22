@@ -16,7 +16,7 @@ void validate_input(int ean) {
 }
 
 void print_array(char* array[]) {
-    printf("\nPrinting array...\n");
+    // printf("\nPrinting array...\n");
     for (int i = 0; i < 8; i++) {
         printf("%s ", array[i]);
     }
@@ -24,25 +24,23 @@ void print_array(char* array[]) {
 }
 
 void convert_to_binary(int decimal_identifier[], char *binary_identifier[]) {
-    printf("\nConverting decimal ean to binary ean...\n");
+    printf("\nCreating binary EAN...\n");
     for (int i = 0; i < 8; i++) {
 
         int digit = decimal_identifier[i];
 
         if (digit >= 0 && digit <= 9) {
-
             if (i < 4) {
                 binary_identifier[i] = l_codes[digit];
             }
             else {
                 binary_identifier[i] = r_codes[digit];
             }
-
         }
         else {
             printf("(ERRO) Dígito inválido inserido: %d (na posição %d)\n", digit, i);
+            exit(1);
         }
-
     }
 }
 
@@ -77,7 +75,7 @@ void create_whole_sequence(Pbm pbm_info, char whole_sequence[pbm_info.width], ch
         strcat(whole_sequence, "0");
     }
 
-    printf("\nFinal string (no thickness):\n%s\n", whole_sequence);
+    // printf("\nFinal string (no thickness):\n%s\n", whole_sequence);
 
     char repetition[2];
     for (int position = 0; position < pbm_info.width; position++) {
@@ -87,7 +85,7 @@ void create_whole_sequence(Pbm pbm_info, char whole_sequence[pbm_info.width], ch
             strcat(thick_sequence, repetition);
     }
 
-    printf("\nFinal string (with thickness %d):\n%s\n", pbm_info.thickness, thick_sequence);
+    // printf("\nFinal string (with thickness %d):\n%s\n", pbm_info.thickness, thick_sequence);
 
 }
 
@@ -110,7 +108,7 @@ void create_pbm(Pbm pbm_info, char final_sequence[pbm_info.width]) {
     }
 
     fclose(file);
-    printf("\nArquivo PBM criado com sucesso: %s\n", pbm_info.name);
+    printf("\nArquivo PBM criado com sucesso: %s\n\n", pbm_info.name);
 }
 
 int main(int argc, char* argv[]) {
@@ -134,6 +132,7 @@ int main(int argc, char* argv[]) {
             case 'n':
                 name = optarg;
                 strcat(name, ".pbm");
+                validate_file_name(name);
                 break;
             default:
                 fprintf(stderr, "Uso: %s [-s spacing] [-t thickness] [-h height] [-n name]\n", argv[0]);
@@ -145,7 +144,7 @@ int main(int argc, char* argv[]) {
     int identifier_array[8];
     char* binary_identifier[8];
 
-    printf("Insira o EAN de 8 dígitos:\n");
+    printf("\nInsira o EAN-8:\n> ");
     scanf("%d", &ean);
 
     validate_input(ean);
