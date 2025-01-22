@@ -37,6 +37,7 @@ typedef struct {
     int height;
     int width;
     char* name;
+    char file_name[100];
 } Pbm ;
 
 int verify(int int_ean) {
