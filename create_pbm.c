@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-
-#include "create_pbm.h"
+#include "shared_pbm.h"
 
 void print_array(char* array[]) {
     printf("\nPrinting array...\n");
