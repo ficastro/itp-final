@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "limits": "c"
+        "limits": "c",
+        "unistd.h": "c"
     }
 }

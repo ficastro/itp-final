@@ -1,13 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "create_pbm.h"
 
 void print_array(char* array[]) {
+    printf("\nPrinting array...\n");
     for (int i = 0; i < 8; i++) {
         printf("%s ", array[i]);
     }
+    printf("\n");
 }
 
 void convert_to_binary(int decimal_identifier[], char *binary_identifier[]) {
@@ -40,87 +43,70 @@ int convert_int_to_array(int integer, int identifier_array[]) {
     }
 }
 
-void generate_matrix(Pbm pbm_info, char** binary_identifier, int matrix[pbm_info.width][pbm_info.height]) {
-    
-    for (int i = 0; i < pbm_info.width; i++) {    
-        for (i; i < (pbm_info.spacing * pbm_info.thickness); i++) { // borda inicial
-            matrix[i][0] = 0;
-        }
-        for (i; i < (i + (pbm_info.thickness)); i++) { // marcador inicial
-            // matrix[i][0] = 1;
-            matrix[i][0] = matrix[i + (2 * pbm_info.thickness)][0] = 1;
-            matrix[i + pbm_info.thickness][0] = 0;
-            // matrix[i + (2 * pbm_info.thickness)][0] = 1;
-        }
-        i = i + (2 * pbm_info.thickness);
-        for (i; i < i + (4 * pbm_info.thickness); i++) { // primeiros 4 dígitps
+void create_whole_sequence(Pbm pbm_info, char whole_sequence[pbm_info.width], char *binary_identifier[], char thick_sequence[pbm_info.width * pbm_info.thickness]) {
 
-            for(int j = 0; j < 4; j++){
-               for (int k = 0; k < 7; k++){
-                    matrix[i][0] = (binary_identifier[j])[k];
-                    i++;
-                }
-            }       
-        }
-        for (i; i < i + pbm_info.thickness; i++) { //marcador do meio
-            matrix[i][0] = matrix[i + (2 * pbm_info.thickness)][0] = matrix[i + (4 * pbm_info.thickness)][0] = 0;
-            matrix[i + pbm_info.thickness][0] = matrix[i + (3 * pbm_info.thickness)][0] = 1;
-        }
-        i = i + (4 * pbm_info.thickness);
-        for (i; i < i + (4 * pbm_info.thickness); i++) { // primeiros 4 dígitps
-
-            for(int j = 4; j < 8; j++){
-               for (int k = 0; k < 7; k++){
-                    matrix[i][0] = (binary_identifier[j])[k];
-                    i++;
-                }
-            }       
-        }
-        for (i; i < (i + (pbm_info.thickness)); i++) { //marcador final
-            matrix[i][0] = matrix[i + (2 * pbm_info.thickness)][0] = 1;
-            matrix[i + pbm_info.thickness][0] = 0;
-        }
-        i = i + (2 * pbm_info.thickness);
-        for (i; i < (pbm_info.spacing * pbm_info.thickness); i++) { //borda final
-            matrix[i][0] = 0;
-        }
+    for (int space = 0; space < pbm_info.spacing; space++) { // Spacing
+        strcat(whole_sequence, "0");
     }
 
-//    for (int i = 0; i < pbm_info.thickness; i++) {
-//        for (int j = 0; j < pbm_info.height; j++) {
-//            fprintf(file, "%d ", matrix[i][j]);
-//        }
-//        fprintf(file, "\n");
+    strcat(whole_sequence, "101"); // Initial mark
 
+    for (int position = 0; position < 4; position++) { // 4 primeiros binários
+        strcat(whole_sequence, binary_identifier[position]);
+    }
+
+    strcat(whole_sequence, "01010"); // Middle mark
+
+    for (int position = 4; position < 8; position++) { // 4 últimos binários
+        strcat(whole_sequence, binary_identifier[position]);
+    }
+
+    strcat(whole_sequence, "101"); // Final mark
+
+    for (int space = 0; space < pbm_info.spacing; space++) { // Spacing
+        strcat(whole_sequence, "0");
+    }
+
+    printf("\nFinal string (no thickness):\n%s\n", whole_sequence);
+
+    char repetition[2];
+    for (int position = 0; position < pbm_info.width; position++) {
+        repetition[0] = whole_sequence[position];
+        repetition[1] = '\0';
+        for (int time = 1; time <= pbm_info.thickness; time++)
+            strcat(thick_sequence, repetition);
+    }
+
+    printf("\nFinal string (with thickness %d):\n%s\n", pbm_info.thickness, thick_sequence);
 
 }
 
-void create_pbm(Pbm pbm_info, int matrix[pbm_info.width][pbm_info.height]) {
+void create_pbm(Pbm pbm_info, char final_sequence[pbm_info.width]) {
     FILE *file = fopen(pbm_info.name, "w");
 
     if (!file) {
-        fprintf(stderr, "Erro ao criar arquivo PBM\n");
+        fprintf(stderr, "\nErro ao criar arquivo PBM\n");
         exit(EXIT_FAILURE);
     }
 
     fprintf(file, "P1\n");
-    fprintf(file, "%d %d\n", pbm_info.thickness, pbm_info.height);
+    fprintf(file, "%d %d\n", pbm_info.width, pbm_info.height); // height + 2
 
-    for (int i = 0; i < pbm_info.thickness; i++) {
-        for (int j = 0; j < pbm_info.height; j++) {
-            fprintf(file, "%d ", matrix[i][j]);
+    for (int row = 1; row <= pbm_info.height; row++) {
+        fprintf(file, "%s", final_sequence);
+        if (row != pbm_info.height) {
+            fprintf(file, "\n");
         }
-        fprintf(file, "\n");
     }
 
     fclose(file);
-    printf("Arquivo PBM criado com sucesso: %s\n", pbm_info.name);
+    printf("\nArquivo PBM criado com sucesso: %s\n", pbm_info.name);
 }
 
 int main(int argc, char* argv[]) {
     int spacing = 1;
     int thickness = 1;
-    int height = 7;
+    int height = 1;
     char* name = "codebar.pbm";
     
     int opt;
@@ -144,11 +130,6 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // printf("\nValor de spacing: %d\n", spacing);
-    // printf("\nValor de thickness: %d\n", thickness);
-    // printf("\nValor de height: %d\n", height);
-    // printf("\nValor de name: %s\n", name);
-
     int identifier;
     int identifier_array[8];
     char* binary_identifier[8];
@@ -165,16 +146,18 @@ int main(int argc, char* argv[]) {
         spacing,
         thickness,
         height,
-        (69 * thickness),
+        ( (67 + (spacing * 2)) * thickness),
         name
     };
 
-    int matrix[pbm_info.width][pbm_info.height];
-    generate_matrix(pbm_info, binary_identifier, matrix);
+    char *whole_sequence;
+    whole_sequence = calloc(pbm_info.width, sizeof(int));
 
-    printf("%d", matrix[0][2]);
-    // int matrix[7][69] = {1};
-    create_pbm(pbm_info, matrix);
+    char *thick_sequence;
+    thick_sequence = calloc((pbm_info.width * pbm_info.thickness), sizeof(int));
+
+    create_whole_sequence(pbm_info, whole_sequence, binary_identifier, thick_sequence);
+    create_pbm(pbm_info, thick_sequence);
 
     return 0;
 }
