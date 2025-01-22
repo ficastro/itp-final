@@ -71,7 +71,7 @@ void create_whole_sequence(Pbm pbm_info, char whole_sequence[pbm_info.width], ch
     char repetition[2];
     for (int position = 0; position < pbm_info.width; position++) {
         repetition[0] = whole_sequence[position];
-        repetition[1] = '\0';
+        repetition[1] = '\0'; // Converte char para string
         for (int time = 1; time <= pbm_info.thickness; time++)
             strcat(thick_sequence, repetition);
     }
@@ -135,6 +135,8 @@ int main(int argc, char* argv[]) {
 
     printf("Insira o EAN de 8 dígitos:\n");
     scanf("%d", &identifier);
+
+    verify(identifier);
 
     convert_int_to_array(identifier, identifier_array);
     convert_to_binary(identifier_array, binary_identifier);

@@ -39,4 +39,33 @@ typedef struct {
     char* name;
 } Pbm ;
 
+void verify(int int_ean) {
+
+    char ean[8];
+    sprintf(ean, "%d", int_ean);
+
+    int sum = 0;
+    for (int index = 1; index < 8; index++) {
+        
+        if (index % 2 == 0) {
+            char char_digit = ean[index - 1];
+            int digit = char_digit - '0';
+            sum = sum + (digit * 1);
+        }
+
+        else {
+            char char_digit = ean[index - 1];
+            int digit = char_digit - '0';
+            sum = sum + (digit * 3);
+        }
+
+    }
+    printf("\nTotal sum: %d\n", sum);
+
+    int closest_multiple = ((sum + 9) / 10) * 10;
+    printf("Closest multiple of %d is: %d\n", sum, closest_multiple);
+
+}
+
+
 #endif
