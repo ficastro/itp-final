@@ -6,11 +6,6 @@ Projeto desenvolvido como atividade avaliativa da discipllina "Introdução às 
 
 ## Estrutura
 
-* `aa/`: aa
-* `aa/`: aa
-* `aa/`: aa
-* `aa/`: aa
-
 <h3>Função: Criar código de barras .pbm (create_pbm.c)</h3>
 
 A inicialização do programa pode conter os seguintes argumentos opcionais. Se não forem especificados, o programa utilizará os valores padrões.
@@ -41,7 +36,7 @@ A inicialização do programa pode conter os seguintes argumentos opcionais. Se 
             <td>-h</td>
             <td>int</td>
             <td>(Height) Altura do código de barras</td>
-            <td>1</td>
+            <td>10</td>
         </tr>
         <tr>
             <td>-n</td>
