@@ -62,7 +62,7 @@ int verify(int int_ean) {
     // printf("Closest multiple of %d is: %d\n", sum, closest_multiple);
 
     int verifier = closest_multiple - sum;
-    printf("Verifier digit: %d\n", verifier);
+    printf("\nVerifier digit: %d\n", verifier);
 
     int last_digit = ean[7] - '0';
     if (last_digit != verifier) {

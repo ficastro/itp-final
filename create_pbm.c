@@ -4,6 +4,17 @@
 #include <string.h>
 #include "shared_pbm.h"
 
+void validate_input(int ean) {
+    char str_ean[9];
+    sprintf(str_ean, "%d", ean);
+
+    int integer_test;
+    if (sscanf(str_ean, "%d", &integer_test) != 1 || strlen(str_ean) != 8) {
+        fprintf(stderr, "\nERRO: EAN DEVE CONTER APENAS NUMEROS E TER 8 DIGITOS\n");
+        exit(1);
+    }
+}
+
 void print_array(char* array[]) {
     printf("\nPrinting array...\n");
     for (int i = 0; i < 8; i++) {
@@ -13,7 +24,7 @@ void print_array(char* array[]) {
 }
 
 void convert_to_binary(int decimal_identifier[], char *binary_identifier[]) {
-    printf("\nConverting...\n");
+    printf("\nConverting decimal ean to binary ean...\n");
     for (int i = 0; i < 8; i++) {
 
         int digit = decimal_identifier[i];
@@ -137,6 +148,7 @@ int main(int argc, char* argv[]) {
     printf("Insira o EAN de 8 dígitos:\n");
     scanf("%d", &ean);
 
+    validate_input(ean);
     verify(ean);
 
     convert_int_to_array(ean, identifier_array);
