@@ -14,10 +14,10 @@ void validate_file(char file_name[]) {
     char verif_p1[8];
     fgets(verif_p1, 8, file);
     if (strcmp(verif_p1, "P1\n") != 0) {
-        fprintf(stderr, "\nErro, arquivo PBM nao inicia com P1\n");
+        fprintf(stderr, "\eERRO: ARQUIVO .PBM NAO CONTEM LINHA INICIAL 'P1'");
         exit(1);
     }
-    printf("\nFile validated\n");
+    printf("\nFile validated:");
 }
 
 void fetch_size(Pbm *pbm_info) {
@@ -99,9 +99,6 @@ void find_binaries(Pbm *pbm_info, char *binary_codes[8]) { //Função para ler o
     int binary_start = (pbm_info->spacing * pbm_info->thickness) + (3 * pbm_info->thickness);
     int binary_end = pbm_info->width - binary_start;
     int middle_marker = (pbm_info->thickness * pbm_info->spacing) + (pbm_info->thickness * 3) + (pbm_info->thickness * 7 * 4);
-    printf("\nBINARY START: %d\n", binary_start);
-    printf("\nMIDDLE MARKER: %d\n", middle_marker);
-    printf("\nBINARY END: %d\n", binary_end);
 
     char line[1000];
     while (fgets(line, sizeof(line), file) != NULL) {
@@ -109,60 +106,41 @@ void find_binaries(Pbm *pbm_info, char *binary_codes[8]) { //Função para ler o
 
             int binaries_found = 0;
             for (int position = binary_start; position < binary_end; ) { // Itera ao longo de toda a string binária por caractere
-                printf("\nStarting at position: %d", position);
 
                 if (position == middle_marker) {
-                    printf("\nINSIDE marker at position: %d", position);
                     position += (5 * pbm_info->thickness); // Pula o marcador do meio
                 }
 
-                char binary_code[8] = {0};
+                char *binary_code = calloc(8, sizeof(char));
                 for (int binary_digit = 0; binary_digit < 7; binary_digit++) { // Itera ao longo dos 7 caracteres de um binário
-                    printf("\nStarting binary at position: %d", position);
                     strncat(binary_code, &line[position], 1);
-                    printf("\nBinary digit: %c", line[position]);
                     position += pbm_info->thickness;
-                    printf("\nFinshing binary at position: %d", position);
                 }
 
                 binary_codes[binaries_found] = binary_code;
                 binaries_found++;
-                printf("\nBinary code saved: %s", binary_code);
-                printf("\nBINARIES FOUND: %d\n\n", binaries_found);
                 if (binaries_found == 8) {
+                    printf("\nBinary code:\n");
+                    print_array(binary_codes);
                     break;
                 }
             }
             return;
         }
     }
-    // print_array(binary_codes);
 }
 
-char to_decimal(char decimal[], char* lr_codes[]) { 
-    for (int i = 0; i < 10; i++) {
-        if (strcmp(decimal, lr_codes[i]) == 0) {
-            return '0' + i;
+void convert_to_decimal(char* binaries_array[], char ean[]) {
+    int ean_progress = 0;
+    for (int binary = 0; binary < 8; binary++) {
+        for (int index = 0; index < 10; index++) {
+            if ( (binary < 4 && strcmp(binaries_array[binary], l_codes[index]) == 0) || (binary >= 4 && strcmp(binaries_array[binary], r_codes[index]) == 0) ) {
+                ean[ean_progress++] = '0' + index;
+                break;
+            }
         }
     }
-    return '?';
-}
-
-void convert_from_binary(char decimal_identifier[8], char l_code[28], char r_code[28]){
-    for (int i = 0; i < 4; i++){
-      char l_decimal[8];
-      strncpy(l_decimal, l_code + i * 7, 7);
-      l_decimal[7] = '\0';
-      decimal_identifier[i] = to_decimal(l_decimal, l_codes);  
-    }
-
-    for (int i = 0; i < 4; i++){  
-        char r_decimal[8];
-        strncpy(r_decimal, r_code + i * 7, 7);
-        r_decimal[7] = '\0';
-        decimal_identifier[i + 4] = to_decimal(r_decimal, r_codes);
-    }
-
+    ean[ean_progress] = '\0'; // Null-terminate the EAN string
 }
 
 void print_result(char result[8]) {
@@ -173,7 +151,7 @@ void print_result(char result[8]) {
 }
 
 int main(){
-    char decimal_identifier[8];
+    char ean[8] = {0};
     char* binary_codes[8];
     Pbm pbm_info;
 
@@ -181,8 +159,11 @@ int main(){
     size_t name_size = 100;
     name = malloc(name_size * sizeof(char));
 
-    printf("Por favor, insira o nome do arquivo da imagem PBM com o codigo de barras:\n> ");
+    printf("Insira o nome do arquivo .pbm a ser lido:\n> ");
     scanf("%s", name);
+    if (strstr(name, ".pbm") == NULL) {
+        strcat(name, ".pbm");
+    }
     pbm_info.name = name;
     validate_file(pbm_info.name);
 
@@ -191,10 +172,10 @@ int main(){
     fetch_spacing(&pbm_info);
 
     find_binaries(&pbm_info, binary_codes);
-    // convert_from_binary(decimal_identifier, l_code, r_code);
+    convert_to_decimal(binary_codes, ean);
+    verify(atoi(ean));
     
-    printf("\nIDENTIFICADOR GERADO:\n");
-    print_result(decimal_identifier);
+    printf("\nIDENTIFICADOR GERADO:\n%s", ean);
 
     return 0;
 }

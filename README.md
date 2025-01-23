@@ -46,3 +46,7 @@ A inicialização do executável pode conter os seguintes argumentos opcionais. 
         </tr>
     </tbody>
 </table>
+
+<h3>Função: Ler código de barras .pbm (read_pbm.c)</h3>
+
+O executável requer como input apenas o nome do arquivo .pbm já salvo na mesma pasta do programa, que lê o arquivo do código de barras e o converte para o formato decimal do EAN-8.
