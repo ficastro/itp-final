@@ -37,8 +37,15 @@ typedef struct {
     int height;
     int width;
     char* name;
-    char file_name[100];
 } Pbm ;
+
+void print_array(char* array[]) {
+    // printf("\nPrinting array...\n");
+    for (int i = 0; i < 8; i++) {
+        printf("%s ", array[i]);
+    }
+    printf("\n");
+}
 
 int verify(int int_ean) {
     char ean[8];

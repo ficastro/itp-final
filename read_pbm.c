@@ -4,85 +4,139 @@
 #include <string.h>
 #include "shared_pbm.h"
 
-void read_pbm (Pbm *pbm_image, char l_code[28], char r_code[28]) { //Função para ler o arquivo PBM
-    FILE *file = fopen(pbm_image->file_name, "r");
-
-    if(!file) { //Arquivo existe?
-        fprintf(stderr, "\nErro ao abrir arquivo PBM\n");
-        exit(EXIT_FAILURE);
+void validate_file(char file_name[]) {
+    FILE *file = fopen(file_name, "r");
+    if(!file) {
+        fprintf(stderr, "\nERRO: ARQUIVO NAO ENCONTRADO\n");
+        exit(1);
     }
-    printf("Arquivo PBM aberto com sucesso.\n");
 
     char verif_p1[8];
     fgets(verif_p1, 8, file);
     if (strcmp(verif_p1, "P1\n") != 0) {
         fprintf(stderr, "\nErro, arquivo PBM nao inicia com P1\n");
+        exit(1);
+    }
+    printf("\nFile validated\n");
+}
+
+void fetch_size(Pbm *pbm_info) {
+    FILE *file = fopen(pbm_info->name, "r");
+
+    char verif_p1[3];
+    if (fgets(verif_p1, sizeof(verif_p1), file) == NULL) {
+        fprintf(stderr, "\nErro ao ler o identificador do PBM\n");
         fclose(file);
-        exit(EXIT_FAILURE);
+        return;
     }
-    printf("Arquivo verificado como P1.\n");
 
-    char comments;
-    while ((comments = fgetc(file)) == '#') {
-        while (fgetc(file) != '\n');
-    }
-    ungetc(comments, file);
-
-    fscanf(file, "%d %d", &pbm_image->width, &pbm_image->height); //Descobrindo as medidas
-    printf("Dimensoes do PBM: largura = %d, altura = %d\n", pbm_image->width, pbm_image->height);
-    
-    char *image_binary = calloc(pbm_image->width * pbm_image->height, sizeof(char));
-    if (image_binary == NULL) {
-        fprintf(stderr, "\nErro ao alocar memoria\n");
+    if (fscanf(file, "%d %d", &pbm_info->width, &pbm_info->height) != 2) {
+        fprintf(stderr, "\nErro ao ler a largura e altura do arquivo\n");
         fclose(file);
-        exit(EXIT_FAILURE);
+        return;
     }
-    printf("Memoria alocada para a imagem.\n");
+    printf("\nWidth: %d\nHeight: %d\n", pbm_info->width, pbm_info->height);
+}
 
-    int primeiro_1 = 0; //Descobrindo a primeira linha que não é composta apenas por zeros
-    for (int i = 0; i < (pbm_image->width * pbm_image->height); i++) {
-        char aux = fgetc(file);
-        if (aux == '0' || aux == '1') {
-            image_binary[i] = aux;
-            if (aux == '1' && primeiro_1 == 0) {
-                primeiro_1 = i;
+void fetch_thickness(Pbm *pbm_info) {
+    FILE *file = fopen(pbm_info->name, "r");
+    char line[1000];
+    while (fgets(line, sizeof(line), file) != NULL) {
+
+        int first_1_position = -1; // Nenhum 1 ainda encontrado
+        int last_1_position = -1;
+        int line_size = strlen(line);
+        if (line_size > 67) {
+            for (int position = 0; position < pbm_info->width; position++) {
+                if (line[position] == '1') {
+                    if (first_1_position == -1) { // Primeiro 1 encontrado
+                        first_1_position = position;
+                    }
+                    last_1_position = position;  // Atualiza último 1 encontrado
+                }
+                if (line[position] == '0' && first_1_position != -1) {
+                    break;
+                }
+            }
+
+            if (first_1_position != -1 && last_1_position != -1) {
+                pbm_info->thickness = (last_1_position - first_1_position) + 1;
+                printf("Thickness: %d\n", pbm_info->thickness);
+                break;
             }
         }
-        else if (aux == EOF) {
-            fprintf(stderr, "\nErro, arquivo PBM não contém o código de barras adequado\n");
-            free(image_binary);
-            fclose(file);
-            exit(EXIT_FAILURE);
-        } 
     }
+}
 
-    int chars_zero = (primeiro_1 / pbm_image->width) * pbm_image->width; //Eliminando os zeros
-    int half_width = pbm_image->width / 2;
-    
-    if (image_binary[half_width + chars_zero] == '1') {
-        pbm_image->thickness = 1;
-    } 
-    else {
-        pbm_image->thickness = 0;
-    }
-    while (image_binary[half_width + chars_zero + pbm_image->thickness] == '1') {
-        pbm_image->thickness++;
-    }
+void fetch_spacing(Pbm *pbm_info) {
+    FILE *file = fopen(pbm_info->name, "r");
+    char line[1000];
+    while (fgets(line, sizeof(line), file) != NULL) {
 
-    int index = 0;
-    int side_line_spacing = (pbm_image->width - (pbm_image->thickness * 67)) / 2; 
-    for (int i = 0; i < 28 * pbm_image->thickness; i += pbm_image->thickness){
-        l_code[index] = image_binary[(i + 1) + side_line_spacing + (3 * pbm_image->thickness)];
-        index++;
+        int last_0_position = -1;
+        int line_size = strlen(line);
+        if (line_size > 67) {
+            for (int position = 0; position < pbm_info->width; position++) {
+                if (line[position] == '0') {
+                    last_0_position = position;
+                }
+                if (line[position] == '1') {
+                    break;
+                }
+            }
+            if (last_0_position != -1) {
+                pbm_info->spacing = (last_0_position / pbm_info->thickness) + 1;
+                printf("Spacing: %d\n", pbm_info->spacing);
+                break;
+            }
+        }
     }
-    index = 0;
-    for (int i = 0; i < 28 * pbm_image->thickness; i += pbm_image->thickness){
-        r_code[index] = image_binary[(i + 1) + side_line_spacing + (36 * pbm_image->thickness)];
-        index++;
-    }
-    fclose(file);
-    free(image_binary);
+}
 
+void find_binaries(Pbm *pbm_info, char *binary_codes[8]) { //Função para ler o arquivo PBM
+    FILE *file = fopen(pbm_info->name, "r");
+
+    int binary_start = (pbm_info->spacing * pbm_info->thickness) + (3 * pbm_info->thickness);
+    int binary_end = pbm_info->width - binary_start;
+    int middle_marker = (pbm_info->thickness * pbm_info->spacing) + (pbm_info->thickness * 3) + (pbm_info->thickness * 7 * 4);
+    printf("\nBINARY START: %d\n", binary_start);
+    printf("\nMIDDLE MARKER: %d\n", middle_marker);
+    printf("\nBINARY END: %d\n", binary_end);
+
+    char line[1000];
+    while (fgets(line, sizeof(line), file) != NULL) {
+        if (strlen(line) > 15) {
+
+            int binaries_found = 0;
+            for (int position = binary_start; position < binary_end; ) { // Itera ao longo de toda a string binária por caractere
+                printf("\nStarting at position: %d", position);
+
+                if (position == middle_marker) {
+                    printf("\nINSIDE marker at position: %d", position);
+                    position += (5 * pbm_info->thickness); // Pula o marcador do meio
+                }
+
+                char binary_code[8] = {0};
+                for (int binary_digit = 0; binary_digit < 7; binary_digit++) { // Itera ao longo dos 7 caracteres de um binário
+                    printf("\nStarting binary at position: %d", position);
+                    strncat(binary_code, &line[position], 1);
+                    printf("\nBinary digit: %c", line[position]);
+                    position += pbm_info->thickness;
+                    printf("\nFinshing binary at position: %d", position);
+                }
+
+                binary_codes[binaries_found] = binary_code;
+                binaries_found++;
+                printf("\nBinary code saved: %s", binary_code);
+                printf("\nBINARIES FOUND: %d\n\n", binaries_found);
+                if (binaries_found == 8) {
+                    break;
+                }
+            }
+            return;
+        }
+    }
+    // print_array(binary_codes);
 }
 
 char to_decimal(char decimal[], char* lr_codes[]) { 
@@ -120,17 +174,26 @@ void print_result(char result[8]) {
 
 int main(){
     char decimal_identifier[8];
-    char l_code[28];
-    char r_code[28];
-    Pbm pbm_image;
+    char* binary_codes[8];
+    Pbm pbm_info;
 
-    printf("Por favor, insira somente o nome do arquivo da imagem PBM com o codigo de barras\n");
-    scanf("%s", pbm_image.file_name);
+    char *name;
+    size_t name_size = 100;
+    name = malloc(name_size * sizeof(char));
 
-    read_pbm(&pbm_image, l_code, r_code);
-    convert_from_binary(decimal_identifier, l_code, r_code);
+    printf("Por favor, insira o nome do arquivo da imagem PBM com o codigo de barras:\n> ");
+    scanf("%s", name);
+    pbm_info.name = name;
+    validate_file(pbm_info.name);
+
+    fetch_size(&pbm_info);
+    fetch_thickness(&pbm_info);
+    fetch_spacing(&pbm_info);
+
+    find_binaries(&pbm_info, binary_codes);
+    // convert_from_binary(decimal_identifier, l_code, r_code);
     
-    printf("Parabens! Aqui esta o identificador:");
+    printf("\nIDENTIFICADOR GERADO:\n");
     print_result(decimal_identifier);
 
     return 0;

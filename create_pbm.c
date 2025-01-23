@@ -15,14 +15,6 @@ void validate_input(int ean) {
     }
 }
 
-void print_array(char* array[]) {
-    // printf("\nPrinting array...\n");
-    for (int i = 0; i < 8; i++) {
-        printf("%s ", array[i]);
-    }
-    printf("\n");
-}
-
 void convert_to_binary(int decimal_identifier[], char *binary_identifier[]) {
     printf("\nCreating binary EAN...\n");
     for (int i = 0; i < 8; i++) {
