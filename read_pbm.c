@@ -140,7 +140,7 @@ void convert_to_decimal(char* binaries_array[], char ean[]) {
             }
         }
     }
-    ean[ean_progress] = '\0'; // Null-terminate the EAN string
+    ean[ean_progress] = '\0';
 }
 
 void print_result(char result[8]) {
