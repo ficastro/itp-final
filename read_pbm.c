@@ -83,18 +83,7 @@ void read_pbm (Pbm *pbm_image, char l_code[28], char r_code[28]) { //Função pa
     fclose(file);
     free(image_binary);
 
-    for (int i = 0; i < 28; i++) {
-        printf("%c", r_code[i]);
-    }
-    printf("\n");
-
-    for (int i = 0; i < 28; i++) {
-        printf("%c", l_code[i]);
-    }
-    printf("\n");
 }
-
-
 
 char to_decimal(char decimal[], char* lr_codes[]) { 
     for (int i = 0; i < 10; i++) {
