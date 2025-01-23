@@ -4,7 +4,7 @@
 #include <string.h>
 #include "shared_pbm.h"
 
-void read_pbm (Pbm *pbm_image, char l_code[29], char r_code[29]) { //Função para ler o arquivo PBM
+void read_pbm (Pbm *pbm_image, char l_code[28], char r_code[28]) { //Função para ler o arquivo PBM
     FILE *file = fopen(pbm_image->file_name, "r");
 
     if(!file) { //Arquivo existe?
@@ -72,17 +72,28 @@ void read_pbm (Pbm *pbm_image, char l_code[29], char r_code[29]) { //Função pa
     int index = 0;
     int side_line_spacing = (pbm_image->width - (pbm_image->thickness * 67)) / 2; 
     for (int i = 0; i < 28 * pbm_image->thickness; i += pbm_image->thickness){
-        l_code[index] = image_binary[i + side_line_spacing + (3 * pbm_image->thickness)];
+        l_code[index] = image_binary[(i + 1) + side_line_spacing + (3 * pbm_image->thickness)];
         index++;
     }
     index = 0;
     for (int i = 0; i < 28 * pbm_image->thickness; i += pbm_image->thickness){
-        r_code[index] = image_binary[i + side_line_spacing + 36 * pbm_image->thickness];
+        r_code[index] = image_binary[(i + 1) + side_line_spacing + (36 * pbm_image->thickness)];
         index++;
     }
     fclose(file);
     free(image_binary);
+
+    for (int i = 0; i < 28; i++) {
+        printf("%c", r_code[i]);
+    }
+    printf("\n");
+
+    for (int i = 0; i < 28; i++) {
+        printf("%c", l_code[i]);
+    }
+    printf("\n");
 }
+
 
 
 char to_decimal(char decimal[], char* lr_codes[]) { 
@@ -94,7 +105,7 @@ char to_decimal(char decimal[], char* lr_codes[]) {
     return '?';
 }
 
-void convert_from_binary(char decimal_identifier[8], char l_code[29], char r_code[29]){
+void convert_from_binary(char decimal_identifier[8], char l_code[28], char r_code[28]){
     for (int i = 0; i < 4; i++){
       char l_decimal[8];
       strncpy(l_decimal, l_code + i * 7, 7);
